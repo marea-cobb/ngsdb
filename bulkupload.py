@@ -34,38 +34,51 @@ def get_author_id(librarycode):
 
 # Inserts statistic cvs from the INFO metadata into statistics cv when they are not already present.
 # This information will be pulled to fill in the statistics table.
-def insert_statistics_cv(infos, formts):
-    for each in infos:
-        try:
-            cv_name = each
-            print each
-            print dict.get(each)
-            #vcf_reader = cyvcf.Reader(open('/Volumes/mcobb$/Ld06_v01s1.vcf.gz.snpEff.vcf', 'r'))
-            #cv_definition = vcf_reader.infos[each][3]
-            cvgroup_id = 1
+def insert_statistics_cv(infos, formats):
+    #try:
+    for cv_name, value in infos.iteritems():
+        cv_definition = value[3]
+        if cv_name != "EFF":
+            #print cv_name
             dbh = psycopg2.connect(host='ngsdb', database="marea01", user='marea', password='marea')
             cur = dbh.cursor()
             try:
-                cur.execute('SELECT cvterm_id FROM "ngsdbview_statistics_cv" WHERE cvgroup_id = %s AND cvterm = %s',
-                            (cvgroup_id, cv_name,))
+                cur.execute('SELECT cvterm_id FROM "ngsdbview_statistics_cv" WHERE cvterm = %s', (cv_name,))
                 cv_id = cur.fetchone()
                 if cv_id is not None:
                     dbh.commit()
                     dbh.close()
-                    return cv_id[0]
-                #Inserts data into the database through 'executemany'.
+                #Inserts data into the database through 'execute'.
                 else:
-                    cur.execute('INSERT INTO "ngsdbview_statistics_cv" (cvgroup_id, cvterm, cv_notes) VALUES (%s, %s, %s) RETURNING cvterm_id',
-                                (cvgroup_id,  cv_name, cv_definition))
-                    cvterm_id = cur.fetchone()[0]
+                    cur.execute('INSERT INTO "ngsdbview_statistics_cv" (cvterm, cv_notes) VALUES (%s, %s)',
+                                (cv_name, cv_definition))
                     dbh.commit()
                     dbh.close()
-                    return cvterm_id
             except psycopg2.IntegrityError:
                 dbh.rollback()
-        except psycopg2.DatabaseError, e:
-            print 'Error %s' % e
-            sys.exit(1)
+    for cv_name, values in formats.iteritems():
+        cv_definition = values[3]
+        if cv_name != "EFF":
+
+            dbh = psycopg2.connect(host='ngsdb', database="marea01", user='marea', password='marea')
+            cur = dbh.cursor()
+            try:
+                cur.execute('SELECT cvterm_id FROM "ngsdbview_statistics_cv" WHERE cvterm = %s', (cv_name,))
+                cv_id = cur.fetchone()
+                if cv_id is not None:
+                    dbh.commit()
+                    dbh.close()
+                #Inserts data into the database through 'execute'.
+                else:
+                    cur.execute('INSERT INTO "ngsdbview_statistics_cv" (cvterm, cv_notes) VALUES (%s, %s)',
+                                (cv_name, cv_definition))
+                    dbh.commit()
+                    dbh.close()
+            except psycopg2.IntegrityError:
+                dbh.rollback()
+    #except psycopg2.DatabaseError, e:
+    #    print 'Error %s' % e
+    #    sys.exit(1)
 
 
 # Inserts the possible snp types into snp_type if they do not already exist.
@@ -335,44 +348,45 @@ def main():
 
         # Identifies the librarycode, strain, genome name, genome version,
         #genome_name = input("Please state the genome name.")
-        genome_version = input("Please state the genome version")
-        librarycode = input("Please state the librarycode. If you are unsure of the correct code, please visit the "
-                            "ngsdb database.")
-        analysisPath = input('Please provide the full analysis path.')
+        #genome_version = input("Please state the genome version")
+        #librarycode = input("Please state the librarycode. If you are unsure of the correct code, please visit the "
+        #                    "ngsdb database.")
+        #analysisPath = input('Please provide the full analysis path.')
 
 
 
         # SQL Inserts and Selects
         #----------------------------------------------------------------------
-        # Collects the organism_id from librarycode
-        organism_id = get_organism_id(librarycode)
-        print organism_id
+        ## Collects the organism_id from librarycode
+        #organism_id = get_organism_id(librarycode)
+        #print organism_id
 
         # Collects the genome_id from the Genome table
-        genome_id = get_genome_id(organism_id, genome_version)
-        print genome_id
+        #genome_id = get_genome_id(organism_id, genome_version)
+        #print genome_id
 
         # Collects the author_id from the Library table.
-        author_id = get_author_id(librarycode)
+        #author_id = get_author_id(librarycode)
         #
         #        # Collects the library_id from the library table.
         #        library_id = get_library_id(librarycode)
         #
         # Collects the result_id from results if already present, otherwise results are inserted into the table.
-        result_id = insert_result(genome_id, author_id, analysisPath)
+        #result_id = insert_result(genome_id, author_id, analysisPath)
 
         # Identifies the chromosome and chromosomal version
         #chromosome_name = vcf_reader.contigs.values()
         #chromosome_id = insert_chromosome(chromosome_name, organism_id)
-        #
-        ## Inserts Statistic CVs into the Statistics_CV.
-        #        info = vcf_reader.infos
-        #        formats = vcf_reader.formats
-        #        insert_statistics_cv(info, formats)
-        #
-        #        # Inserts Effect types into effect_cv
-        #        # effect_list = vcf_reader.infos['EFF'].desc
-        #        # insert_effect_cv(effect_list)
+
+        # Inserts Statistic CVs into the Statistics_CV.
+        info = vcf_reader.infos
+        formats = vcf_reader.formats
+        cvterm_id = insert_statistics_cv(info, formats)
+        print cvterm_id
+
+        # Inserts Effect types into effect_cv
+        #effect_list = vcf_reader.infos['EFF'].desc
+        #insert_effect_cv(effect_list)
 
 
         # Attributes that are unique for each SNP.
@@ -407,7 +421,7 @@ def main():
             ## add_snp_effect(snp_id)
 
             #chromosome_id = get_chromosome_id(chromosome)
-            snp_id = 2
+            #snp_id = 2
             # Inserts the snp's statistics into Statistics
             #for cv in statistics:
             #    cv_term = record.INFO[cv]
