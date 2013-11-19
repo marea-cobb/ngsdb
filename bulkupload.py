@@ -211,10 +211,10 @@ def get_organism_id(librarycode):
         try:
             cur.execute('SELECT organism_id FROM "ngsdbview_library" WHERE librarycode = %s',
                         (librarycode,))
-            organism_id = cur.fetchone()
+            organism = cur.fetchone()
             dbh.close()
-            if organism_id is not None:
-                return organism_id[0]
+            if organism is not None:
+                return organism[0]
             else:
                 print "Please add organism to the ngsdb database."
                 dbh.close()
@@ -330,6 +330,26 @@ def insert_snp_statistics(snp_id, cvterm_id, cv_value):
         sys.exit(1)
 
 
+def get_organismcode(organism_id):
+    try:
+        dbh = psycopg2.connect(host='ngsdb', database="marea01", user='marea', password='marea')
+        cur = dbh.cursor()
+        try:
+            cur.execute('SELECT organismcode FROM "ngsdbview_organism" WHERE organism_id = %s',
+                    (organism_id,))
+            organismcode = cur.fetchone()
+            dbh.close()
+            if organismcode is not None:
+                return organismcode[0]
+            else:
+                print "Please add organism to the database."
+        except psycopg2.IntegrityError:
+            dbh.rollback()
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
+        sys.exit(1)
+
+
 def main():
     #Will ultimately be changed to allow vcf and summary files to be provided through the command line.
     number_of_files = input("Type 'yes' if you have both the vcf file and summary file. "
@@ -347,42 +367,41 @@ def main():
         #--------------------------------------------------------------------
 
         # Identifies the librarycode, strain, genome name, genome version,
-        #genome_name = input("Please state the genome name.")
-        #genome_version = input("Please state the genome version")
+        librarycode= input("Please state the genome name.")
+        genome_version = input("Please state the genome version")
         #librarycode = input("Please state the librarycode. If you are unsure of the correct code, please visit the "
         #                    "ngsdb database.")
         #analysisPath = input('Please provide the full analysis path.')
 
 
-
         # SQL Inserts and Selects
         #----------------------------------------------------------------------
-        ## Collects the organism_id from librarycode
-        #organism_id = get_organism_id(librarycode)
-        #print organism_id
+        # Collects the organism_id from librarycode
+        organism_id = get_organism_id(librarycode)
+        organismcode = get_organismcode(organism_id)
+
 
         # Collects the genome_id from the Genome table
-        #genome_id = get_genome_id(organism_id, genome_version)
+        genome_id = get_genome_id(organism_id, genome_version)
         #print genome_id
 
         # Collects the author_id from the Library table.
-        #author_id = get_author_id(librarycode)
+        author_id = get_author_id(librarycode)
         #
-        #        # Collects the library_id from the library table.
-        #        library_id = get_library_id(librarycode)
+        # Collects the library_id from the library table.
+        library_id = get_library_id(librarycode)
         #
         # Collects the result_id from results if already present, otherwise results are inserted into the table.
         #result_id = insert_result(genome_id, author_id, analysisPath)
 
         # Identifies the chromosome and chromosomal version
         #chromosome_name = vcf_reader.contigs.values()
-        #chromosome_id = insert_chromosome(chromosome_name, organism_id)
+        #chromosome_id = insert_chromosome(chromosome_name, chromosome_version, genome_name, genome_version)
 
         # Inserts Statistic CVs into the Statistics_CV.
-        info = vcf_reader.infos
-        formats = vcf_reader.formats
-        cvterm_id = insert_statistics_cv(info, formats)
-        print cvterm_id
+        #info = vcf_reader.infos
+        #formats = vcf_reader.formats
+        #insert_statistics_cv(info, formats)
 
         # Inserts Effect types into effect_cv
         #effect_list = vcf_reader.infos['EFF'].desc
@@ -421,11 +440,12 @@ def main():
             ## add_snp_effect(snp_id)
 
             #chromosome_id = get_chromosome_id(chromosome)
+            #print chromosome_id
             #snp_id = 2
             # Inserts the snp's statistics into Statistics
-            #for cv in statistics:
-            #    cv_term = record.INFO[cv]
-            #    insert_snp_statistics(snp_id, cv, cv_term)
+            #for cv_value in statistics:
+            #    cvterm_id = record.INFO[cv_value]
+            #    insert_snp_statistics(snp_id, cvterm_id, cv_value)
 
     elif number_of_files == "yes":
         vcf_file = input("Please provide the full path of the vcf file.")
