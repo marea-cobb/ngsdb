@@ -397,16 +397,17 @@ def get_organismcode(organism_id):
 
 
 def main():
-    #Will ultimately be changed to allow vcf and summary files to be provided through the command line.
-    number_of_files = input("Type 'yes' if you have both the vcf file and summary file. "
-                            "Type 'no' if you only have the vcf file.")
+    # Reads the file in from the command line. First file is the script, second is the vcf file,
+    # and an option second is the summary file.
+    num_of_files = len(sys.argv[1:])
+    vcf_file = sys.argv[1]
 
     # If only a vcf file. Will be adjusted to automatically no through the command line input.
-    if number_of_files == "no":
+    if num_of_files == 1:
         print "Please note that without a summary file, the snp_summary & summary_level_cv table will not be updated. " \
               "This can be done manually at a later date"
         # collect and import vcf file.
-        vcf_reader = vcf.Reader(open('/Volumes/mcobb$/Ld06_v01s1.vcf.gz.snpEff.vcf', 'r'))
+        vcf_reader = vcf.Reader(open(vcf_file, 'r'))
         record = vcf_reader.next()
 
         # Collects input from the user.
@@ -494,7 +495,7 @@ def main():
             #    insert_filter(snp_id, filter)
 
 
-    elif number_of_files == "yes":
+    elif num_of_files == 2:
         vcf_file = input("Please provide the full path of the vcf file.")
         sumamry_file = input("Please provide the full path of the summary file")
 
