@@ -4,6 +4,8 @@
 #			in case of repeated attempts to load the same file.
 #
 #-------------------------------------------------------------------------------------------
+
+
 import psycopg2
 import sys
 import cyvcf
@@ -39,7 +41,6 @@ def insert_statistics_cv(infos, formats):
     for cv_name, value in infos.iteritems():
         cv_definition = value[3]
         if cv_name != "EFF":
-            #print cv_name
             dbh = psycopg2.connect(host='ngsdb', database="marea01", user='marea', password='marea')
             cur = dbh.cursor()
             try:
@@ -110,19 +111,12 @@ def insert_snp_results(snp_position, result_id, ref_base, alt_base, heterozygosi
         dbh = psycopg2.connect(host='ngsdb', database="marea01", user='marea', password='marea')
         cur = dbh.cursor()
         try:
-            print "Trying to Execute Insert"
             cur.execute(
-                'INSERT INTO "ngsdbview_snp" (snp_position, result_id, ref_base, alt_base, heterozygosity, quality, library_id, chromosome_id, snptype_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING snp_id',
-                (snp_position, result_id, ref_base, alt_bases, heterozygosity, quality, library_id, chromosome_id, snp_type))
+                'INSERT INTO "ngsdbview_snp" (snp_position, result_id, ref_base, alt_base, heterozygosity, quality, library_id, chromosome_id, snptype_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING snp_id', (snp_position, result_id, ref_base, alt_bases, heterozygosity, quality, library_id, chromosome_id, snp_type))
             snp_id = cur.fetchone()[0]
-            print "snp_id fetched"
-            print snp_id
         except psycopg2.IntegrityError:
             print "Error in execute"
             dbh.rollback()
-        #dbh.commit()
-        #dbh.close()
-        #return snp_id
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
         sys.exit(1)
@@ -260,49 +254,44 @@ def get_result(library_id, genome_id, author_id, analysisPath):
             if result is not None:
                 user_opt = input("There is already a result_id attached to this library. Please choose one of the"
                                  " following options."
-                                 "\n1. Quit \n2. Override the old snp_results with these results. "
+                                 "\n1. Quit"
+                                 "\n2. Override the old snp_results with these results. This will delete the old results."
                                  "\n3. Keep old results and add these results under a new result_id. "
                                  "The old results will be marked as obsolete in the database.")
                 result_num = 0
-                for each in result:
-                    result_id = each[0]
-                    if user_opt == 1:
+                if user_opt == 1:
                         sys.exit("You have quit the program. SNP_Results were not uploaded into the database.")
-                    elif user_opt == 2:
+                elif user_opt == 2:
+                    for each in result:
+                        result_id = each[0]
                         cur.execute('DELETE FROM "ngsdbview_snp" WHERE result_id = %s', (result_id,))
-                    else:
-                        is_current = True
-                        is_obsolete = False
-                        notes = ''
+                    cur.execute(
+                        'INSERT INTO "ngsdbview_result" (genome_id, author_id, analysisPath) VALUES (%s, %s, %s) RETURNING result_id',
+                        (genome_id, author_id, analysisPath,))
+                    result_id = cur.fetchone()[0]
+                    cur.execute('INSERT INTO "ngsdbview_result_libraries" (result_id, library_id) VALUES (%s, %s)', (result_id, library_id))
+                else:
+                    for each in result:
+                        result_id = each[0]   
                         cur.execute('UPDATE "ngsdbview_result" SET is_current = %s, is_obsolete = %s WHERE result_id = %s', (False, True, result_id,))
-                        if result_num == 0:
-                            cur.execute(
-                                'INSERT INTO "ngsdbview_result" (genome_id, author_id, is_current, is_obsolete, analysisPath, notes) VALUES (%s, %s, %s, %s, %s, %s) RETURNING result_id',
-                                (genome_id, author_id, is_current, is_obsolete, analysisPath, notes,))
-                            result_id = cur.fetchone()[0]
-                            cur.execute('INSERT INTO "ngsdbview_result_libraries" (result_id, library_id) VALUES (%s, %s)',
-                                        (result_id, library_id))
-                            result_num += 1
-                dbh.commit()
-                dbh.close()
-                return result_id
+                    cur.execute(
+                        'INSERT INTO "ngsdbview_result" (genome_id, author_id, analysisPath) VALUES (%s, %s, %s) RETURNING result_id',
+                        (genome_id, author_id, analysisPath,))
+                    result_id = cur.fetchone()[0]
+                    cur.execute('INSERT INTO "ngsdbview_result_libraries" (result_id, library_id) VALUES (%s, %s)',
+                        (result_id, library_id))
             else:
-                is_current = True
-                is_obsolete = False
-                notes = ''
                 cur.execute(
-                    'INSERT INTO "ngsdbview_result" (genome_id, author_id, is_current, is_obsolete, analysisPath, notes) VALUES (%s, %s, %s, %s, %s, %s) RETURNING result_id',
-                    (genome_id, author_id, is_current, is_obsolete, analysisPath, notes,))
+                    'INSERT INTO "ngsdbview_result" (genome_id, author_id, analysisPath) VALUES (%s, %s, %s) RETURNING result_id',
+                    (genome_id, author_id, analysisPath,))
                 result_id = cur.fetchone()[0]
                 cur.execute('INSERT INTO "ngsdbview_result_libraries" (result_id, library_id) VALUES (%s, %s)',
                             (result_id, library_id))
-                dbh.commit()
-                dbh.close()
-                return result_id
         except psycopg2.IntegrityError:
             dbh.rollback()
         dbh.commit()
         dbh.close()
+        return result_id
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
         sys.exit(1)
@@ -372,27 +361,52 @@ def get_organismcode(organism_id):
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
         sys.exit(1)
+        
+
+def insert_filter_cv(filter_type):
+    try:
+        dbh = psycopg2.connect(host='ngsdb', database="marea01", user='marea', password='marea')
+        cur = dbh.cursor()
+        try:
+            if filter_type:
+                filter_string = filter_type[0]
+                cur.execute('SELECT "filterCV_id" FROM "ngsdbview_filter_cv" WHERE filter_type = %s', (filter_string,))
+                filterCV_id = cur.fetchone()
+                if filterCV_id is None:
+                    cur.execute('INSERT INTO "ngsdbview_filter_cv" (filter_type) VALUES (%s) RETURNING "filterCV_id"', (filter_string,))
+                    filterCV_id = cur.fetchone()
+                dbh.commit()
+                dbh.close()
+                return filterCV_id
+        except psycopg2.IntegrityError:
+            dbh.rollback()
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
+        sys.exit(1)
 
 
-#def insert_filter(snp_id, filter):
-#    try:
-#        dbh = psycopg2.connect(host='ngsdb', database="marea01", user='marea', password='marea')
-#        cur = dbh.cursor()
-#        try:
-#            cur.execute('INSERT INTO "ngsdbview_filter" WHERE snp_id = %s AND filter_result = %s', (snp_id, filter,))
-#            organismcode = cur.fetchone()
-#            dbh.close()
-#            if organismcode is not None:
-#                return organismcode[0]
-#            else:
-#                print "Please add organism to the database."
-#        except psycopg2.IntegrityError:
-#            dbh.rollback()
-#    except psycopg2.DatabaseError, e:
-#        print 'Error %s' % e
-#        sys.exit(1)
 
-
+# HAVING TROUBLE INSERTING INTO Filter TABLE. 
+def insert_filter(snp_id, filter_id):
+    try:
+        dbh = psycopg2.connect(host='ngsdb', database="marea01", user='marea', password='marea')
+        cur = dbh.cursor()
+        filter_result = False
+        try:
+            print "trying to insert"
+            cur.execute('INSERT INTO "ngsdbview_filter" (snp_id, filter_id, filter_result) VALUES (%s, %s, %s)', (snp_id, filter_id, filter_result,))
+            print "filter inserted"
+            dbh.commit()
+        except psycopg2.IntegrityError:
+            dbh.rollback()
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
+        sys.exit(1)
+    cur.execute('SELECT * FROM "ngsdbview_filter"')
+    print "trying to fetch"
+    print cur.fetchone()
+    
+    
 #def add_snp_effect():
 
 
@@ -422,7 +436,7 @@ def main():
         #----------------------------------------------------------------------
         # Collects the organism_id from librarycode
         organism_id = get_organism_id(librarycode)
-        #organismcode = get_organismcode(organism_id)
+        organismcode = get_organismcode(organism_id)
 
         # Collects the genome_id from the Genome table
         genome_id = get_genome_id(organism_id, genome_version)
@@ -436,7 +450,7 @@ def main():
         # Collects the result_id from results if already present, otherwise results are inserted into the table by
         # calling insert_result().
         result_id = get_result(library_id, genome_id, author_id, analysis_path)
-
+        
         # Identifies the chromosome and chromosomal version
         #chromosome_name = vcf_reader.contigs.values()
         #insert_chromosome(chromosome_name, organismcode, genome_version)
@@ -447,15 +461,15 @@ def main():
         #insert_statistics_cv(info, formats)
 
         # Inserts Effect types into effect_cv
-        effect_list = vcf_reader.infos['EFF'].desc
-        insert_effect_cv(effect_list)
+        #effect_list = vcf_reader.infos['EFF'].desc
+        #insert_effect_cv(effect_list)
 
         # Attributes that are unique for each SNP.
         for each in vcf_reader:
             ref_base = each.REF
             alt_base = each.ALT
             quality = each.QUAL
-            filter = each.FILTER
+            filter_type = each.FILTER
             position = each.POS
             format = each.FORMAT
             is_snp = each.is_snp
@@ -467,7 +481,6 @@ def main():
             statistics = each.INFO
             chromosome = each.CHROM
             effects = each.INFO['EFF']
-
 
             # Returns the heterozygosity of each snp.
             samples = each.samples
@@ -490,9 +503,9 @@ def main():
             #    cv_value = record.INFO[cv_name]
             #    insert_snp_statistics(snp_id, cv_name, cv_value)
 
-
-            #if filter is not []:
-            #    insert_filter(snp_id, filter)
+            if filter_type:
+                filter_id = insert_filter_cv(filter_type)
+                insert_filter(snp_id, filter_id)
 
 
     elif num_of_files == 2:
