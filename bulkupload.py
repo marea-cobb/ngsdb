@@ -416,6 +416,7 @@ def insert_filter(snp_id, filter_cv_id):
     
     
 def main():
+    snp = 1
     # Reads the file in from the command line. First file is the script, second is the vcf file,
     # and an option second is the summary file.
     num_of_files = len(sys.argv[1:])
@@ -498,6 +499,7 @@ def main():
 
         # Attributes that are unique for each SNP.
         for each in vcf_reader:
+            snp += 1
             ref_base = each.REF
             alt_base = each.ALT
             quality = each.QUAL
@@ -554,6 +556,8 @@ def main():
                 filter_cv_id = insert_filter_cv(filter_type)
                 insert_filter(snp_id, filter_cv_id)
             print "Got filters"
+
+            print "SNP: ", snp
 
     # NEED A STANDARD SUMMARY FILE
     elif num_of_files == 2:
