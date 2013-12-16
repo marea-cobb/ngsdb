@@ -38,18 +38,10 @@
       <file leaf-file-name="bulkupload.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/bulkupload.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="559" column="26" selection-start="24433" selection-end="24433" vertical-scroll-proportion="0.7385621" vertical-offset="5112" max-vertical-offset="6060">
+            <state line="177" column="13" selection-start="8103" selection-end="8103" vertical-scroll-proportion="0.70212764" vertical-offset="2028" max-vertical-offset="9420">
               <folding>
                 <element signature="e#264#279#0" expanded="true" />
-                <element signature="e#1378#3333#0" expanded="false" />
-                <element signature="e#3627#4277#0" expanded="false" />
-                <element signature="e#5600#6394#0" expanded="false" />
-                <element signature="e#6637#7476#0" expanded="false" />
-                <element signature="e#7775#8871#0" expanded="false" />
-                <element signature="e#9025#9821#0" expanded="false" />
-                <element signature="e#14286#14376#0" expanded="false" />
-                <element signature="e#15992#16659#0" expanded="false" />
-                <element signature="e#17723#18285#0" expanded="false" />
+                <marker date="1387222084000" expanded="true" signature="12581:13216" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -97,7 +89,7 @@
     <option name="STATE" value="0" />
   </component>
   <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1" splitterProportion="0.5">
+    <navigator proportions="" version="1" splitterProportion="0.5">
       <flattenPackages />
       <showMembers />
       <showModules />
@@ -108,34 +100,12 @@
       <autoscrollFromSource />
       <sortByType />
     </navigator>
-    <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ngsdb" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ngsdb" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ngsdb" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="Scope" />
-    </panes>
+    <panes />
   </component>
   <component name="PropertiesComponent">
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="options.lastSelected" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="options.lastSelected" value="com.jetbrains.python.configuration.PythonSdkConfigurable" />
     <property name="recentsLimit" value="5" />
     <property name="last_opened_file_path" value="/System/Library/Frameworks/Python.framework/Versions/2.7/Python" />
     <property name="FullScreen" value="false" />
@@ -388,24 +358,36 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="16" />
+      <option name="time" value="17" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/bulkupload.py">
       <provider selected="true" editor-type-id="text-editor">
+        <state line="499" column="50" selection-start="22089" selection-end="22089" vertical-scroll-proportion="0.0" vertical-offset="7485" max-vertical-offset="8880">
+          <folding>
+            <element signature="e#264#279#0" expanded="true" />
+            <marker date="1387222084000" expanded="true" signature="12581:13216" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bulkupload.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="542" column="29" selection-start="23583" selection-end="23583" vertical-scroll-proportion="0.0" vertical-offset="6150" max-vertical-offset="6150">
+          <folding>
+            <element signature="e#264#279#0" expanded="true" />
+            <marker date="1387222084000" expanded="true" signature="12581:13216" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bulkupload.py">
+      <provider selected="true" editor-type-id="text-editor">
         <state line="290" column="13" selection-start="13346" selection-end="13346" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6000">
           <folding>
             <element signature="e#264#279#0" expanded="true" />
-            <element signature="e#1378#3333#0" expanded="false" />
-            <element signature="e#3627#4277#0" expanded="false" />
-            <element signature="e#5600#6394#0" expanded="false" />
-            <element signature="e#6637#7476#0" expanded="false" />
-            <element signature="e#7775#8871#0" expanded="false" />
-            <element signature="e#9025#9821#0" expanded="false" />
-            <element signature="e#14286#14376#0" expanded="false" />
-            <element signature="e#15992#16659#0" expanded="false" />
-            <element signature="e#17723#18285#0" expanded="false" />
+            <marker date="1387222084000" expanded="true" signature="12581:13216" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -415,15 +397,7 @@
         <state line="54" column="32" selection-start="2180" selection-end="2180" vertical-scroll-proportion="0.0" vertical-offset="45" max-vertical-offset="8340">
           <folding>
             <element signature="e#264#279#0" expanded="true" />
-            <element signature="e#1378#3333#0" expanded="false" />
-            <element signature="e#3627#4277#0" expanded="false" />
-            <element signature="e#5600#6394#0" expanded="false" />
-            <element signature="e#6637#7476#0" expanded="false" />
-            <element signature="e#7775#8871#0" expanded="false" />
-            <element signature="e#9025#9821#0" expanded="false" />
-            <element signature="e#14286#14376#0" expanded="false" />
-            <element signature="e#15992#16659#0" expanded="false" />
-            <element signature="e#17723#18285#0" expanded="false" />
+            <marker date="1387222084000" expanded="true" signature="12581:13216" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -433,15 +407,7 @@
         <state line="54" column="32" selection-start="2180" selection-end="2180" vertical-scroll-proportion="0.0" vertical-offset="45" max-vertical-offset="8340">
           <folding>
             <element signature="e#264#279#0" expanded="true" />
-            <element signature="e#1378#3333#0" expanded="false" />
-            <element signature="e#3627#4277#0" expanded="false" />
-            <element signature="e#5600#6394#0" expanded="false" />
-            <element signature="e#6637#7476#0" expanded="false" />
-            <element signature="e#7775#8871#0" expanded="false" />
-            <element signature="e#9025#9821#0" expanded="false" />
-            <element signature="e#14286#14376#0" expanded="false" />
-            <element signature="e#15992#16659#0" expanded="false" />
-            <element signature="e#17723#18285#0" expanded="false" />
+            <marker date="1387222084000" expanded="true" signature="12581:13216" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -451,15 +417,7 @@
         <state line="492" column="1" selection-start="20853" selection-end="20932" vertical-scroll-proportion="0.0" vertical-offset="1342" max-vertical-offset="8190">
           <folding>
             <element signature="e#264#279#0" expanded="true" />
-            <element signature="e#1378#3333#0" expanded="false" />
-            <element signature="e#3627#4277#0" expanded="false" />
-            <element signature="e#5600#6394#0" expanded="false" />
-            <element signature="e#6637#7476#0" expanded="false" />
-            <element signature="e#7775#8871#0" expanded="false" />
-            <element signature="e#9025#9821#0" expanded="false" />
-            <element signature="e#14286#14376#0" expanded="false" />
-            <element signature="e#15992#16659#0" expanded="false" />
-            <element signature="e#17723#18285#0" expanded="false" />
+            <marker date="1387222084000" expanded="true" signature="12581:13216" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -469,15 +427,7 @@
         <state line="378" column="17" selection-start="16300" selection-end="16300" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4320">
           <folding>
             <element signature="e#264#279#0" expanded="true" />
-            <element signature="e#1378#3333#0" expanded="false" />
-            <element signature="e#3627#4277#0" expanded="false" />
-            <element signature="e#5600#6394#0" expanded="false" />
-            <element signature="e#6637#7476#0" expanded="false" />
-            <element signature="e#7775#8871#0" expanded="false" />
-            <element signature="e#9025#9821#0" expanded="false" />
-            <element signature="e#14286#14376#0" expanded="false" />
-            <element signature="e#15992#16659#0" expanded="false" />
-            <element signature="e#17723#18285#0" expanded="false" />
+            <marker date="1387222084000" expanded="true" signature="12581:13216" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -487,15 +437,7 @@
         <state line="407" column="0" selection-start="17814" selection-end="17942" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4935">
           <folding>
             <element signature="e#264#279#0" expanded="true" />
-            <element signature="e#1378#3333#0" expanded="false" />
-            <element signature="e#3627#4277#0" expanded="false" />
-            <element signature="e#5600#6394#0" expanded="false" />
-            <element signature="e#6637#7476#0" expanded="false" />
-            <element signature="e#7775#8871#0" expanded="false" />
-            <element signature="e#9025#9821#0" expanded="false" />
-            <element signature="e#14286#14376#0" expanded="false" />
-            <element signature="e#15992#16659#0" expanded="false" />
-            <element signature="e#17723#18285#0" expanded="false" />
+            <marker date="1387222084000" expanded="true" signature="12581:13216" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -505,15 +447,7 @@
         <state line="150" column="0" selection-start="6391" selection-end="6391" vertical-scroll-proportion="0.0" vertical-offset="2250" max-vertical-offset="5850">
           <folding>
             <element signature="e#264#279#0" expanded="true" />
-            <element signature="e#1378#3333#0" expanded="false" />
-            <element signature="e#3627#4277#0" expanded="false" />
-            <element signature="e#5600#6394#0" expanded="false" />
-            <element signature="e#6637#7476#0" expanded="false" />
-            <element signature="e#7775#8871#0" expanded="false" />
-            <element signature="e#9025#9821#0" expanded="false" />
-            <element signature="e#14286#14376#0" expanded="false" />
-            <element signature="e#15992#16659#0" expanded="false" />
-            <element signature="e#17723#18285#0" expanded="false" />
+            <marker date="1387222084000" expanded="true" signature="12581:13216" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -523,15 +457,7 @@
         <state line="254" column="47" selection-start="10663" selection-end="10663" vertical-scroll-proportion="0.0" vertical-offset="3750" max-vertical-offset="6765">
           <folding>
             <element signature="e#264#279#0" expanded="true" />
-            <element signature="e#1378#3333#0" expanded="false" />
-            <element signature="e#3627#4277#0" expanded="false" />
-            <element signature="e#5600#6394#0" expanded="false" />
-            <element signature="e#6637#7476#0" expanded="false" />
-            <element signature="e#7775#8871#0" expanded="false" />
-            <element signature="e#9025#9821#0" expanded="false" />
-            <element signature="e#14286#14376#0" expanded="false" />
-            <element signature="e#15992#16659#0" expanded="false" />
-            <element signature="e#17723#18285#0" expanded="false" />
+            <marker date="1387222084000" expanded="true" signature="12581:13216" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -541,15 +467,7 @@
         <state line="56" column="43" selection-start="2294" selection-end="2294" vertical-scroll-proportion="0.0" vertical-offset="780" max-vertical-offset="7200">
           <folding>
             <element signature="e#264#279#0" expanded="true" />
-            <element signature="e#1378#3333#0" expanded="false" />
-            <element signature="e#3627#4277#0" expanded="false" />
-            <element signature="e#5600#6394#0" expanded="false" />
-            <element signature="e#6637#7476#0" expanded="false" />
-            <element signature="e#7775#8871#0" expanded="false" />
-            <element signature="e#9025#9821#0" expanded="false" />
-            <element signature="e#14286#14376#0" expanded="false" />
-            <element signature="e#15992#16659#0" expanded="false" />
-            <element signature="e#17723#18285#0" expanded="false" />
+            <marker date="1387222084000" expanded="true" signature="12581:13216" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -559,15 +477,7 @@
         <state line="327" column="0" selection-start="13318" selection-end="13318" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6900">
           <folding>
             <element signature="e#264#279#0" expanded="true" />
-            <element signature="e#1378#3333#0" expanded="false" />
-            <element signature="e#3627#4277#0" expanded="false" />
-            <element signature="e#5600#6394#0" expanded="false" />
-            <element signature="e#6637#7476#0" expanded="false" />
-            <element signature="e#7775#8871#0" expanded="false" />
-            <element signature="e#9025#9821#0" expanded="false" />
-            <element signature="e#14286#14376#0" expanded="false" />
-            <element signature="e#15992#16659#0" expanded="false" />
-            <element signature="e#17723#18285#0" expanded="false" />
+            <marker date="1387222084000" expanded="true" signature="12581:13216" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -579,18 +489,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bulkupload.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="559" column="26" selection-start="24433" selection-end="24433" vertical-scroll-proportion="0.7385621" vertical-offset="5112" max-vertical-offset="6060">
+        <state line="177" column="13" selection-start="8103" selection-end="8103" vertical-scroll-proportion="0.70212764" vertical-offset="2028" max-vertical-offset="9420">
           <folding>
             <element signature="e#264#279#0" expanded="true" />
-            <element signature="e#1378#3333#0" expanded="false" />
-            <element signature="e#3627#4277#0" expanded="false" />
-            <element signature="e#5600#6394#0" expanded="false" />
-            <element signature="e#6637#7476#0" expanded="false" />
-            <element signature="e#7775#8871#0" expanded="false" />
-            <element signature="e#9025#9821#0" expanded="false" />
-            <element signature="e#14286#14376#0" expanded="false" />
-            <element signature="e#15992#16659#0" expanded="false" />
-            <element signature="e#17723#18285#0" expanded="false" />
+            <marker date="1387222084000" expanded="true" signature="12581:13216" placeholder="..." />
           </folding>
         </state>
       </provider>
