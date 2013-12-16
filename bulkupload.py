@@ -256,6 +256,8 @@ def get_organism_id(librarycode):
         sys.exit(1)
 
 
+# Called from insert results to handle the second option chosen by the user.
+# Manually deletes any entries connected with the snp in a cascade of events. Can be time consuming.
 def insert_result_option2(result_ids, library_id, genome_id, author_id, analysisPath):
     notes = ''
     try:
@@ -294,7 +296,7 @@ def insert_result_option2(result_ids, library_id, genome_id, author_id, analysis
         sys.exit(1)
 
 
-# #Collects the result_id
+# #Collects the result_id. User is presented with three options if a result and library are already present in database.
 def get_result(library_id, genome_id, author_id, analysisPath):
     try:
         dbh = psycopg2.connect(host='ngsdb', database="marea01", user='marea', password='marea')
@@ -460,7 +462,7 @@ def insert_filter(snp_id, filter_cv_id):
 
 
 def main():
-    snp = 1
+    snp_iterator = 0
     # Reads the file in from the command line. First file is the script, second is the vcf file,
     # and an option second is the summary file.
     num_of_files = len(sys.argv[1:])
@@ -478,9 +480,8 @@ def main():
         #--------------------------------------------------------------------
 
         # Identifies the librarycode, librarycode, genome_id, and genome version,
-        #librarycode = raw_input("Please state the librarycode. ")
-        librarycode = 'ES021'
-        print "genome_id\t organismcode\t genome_version"
+        librarycode = raw_input("Please state the librarycode. ")
+        #librarycode = 'ES021'
         try:
             dbh = psycopg2.connect(host='ngsdb', database="marea01", user='marea', password='marea')
             cur = dbh.cursor()
@@ -503,13 +504,13 @@ def main():
             print 'Error %s' % e
             sys.exit(1)
 
-        genome_id = '21'
-        genome_version = '5.0'
-        analysis_path = 'Volumes/ngs/'
+        #genome_id = '21'
+        #genome_version = '5.0'
+        #analysis_path = 'Volumes/ngs/'
 
-        #genome_id = raw_input("Please state the genome_id. ")
-        #genome_version = raw_input("Please state the genome version. ")
-        #analysis_path = raw_input("Please provide the full analysis path. ")
+        genome_id = raw_input("Please state the genome_id. ")
+        genome_version = raw_input("Please state the genome version. ")
+        analysis_path = raw_input("Please provide the full analysis path. ")
 
         # SQL Inserts and Selects
         #----------------------------------------------------------------------
@@ -551,7 +552,8 @@ def main():
 
         # Attributes that are unique for each SNP.
         for each in vcf_reader:
-            snp += 1
+            snp_iterator += 1
+            print snp_iterator
             ref_base = each.REF
             alt_base = each.ALT
             quality = each.QUAL
