@@ -2,9 +2,13 @@
   <dictionary name="mcobb">
     <words>
       <w>heterozygosity</w>
+      <w>indel</w>
       <w>infos</w>
       <w>librarycode</w>
+      <w>monomorphic</w>
+      <w>ngsdbview</w>
       <w>organismcode</w>
+      <w>snps</w>
     </words>
   </dictionary>
 </component>

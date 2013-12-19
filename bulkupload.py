@@ -9,9 +9,29 @@ import sys
 import re
 import vcf
 
-
 dbh = psycopg2.connect(host='ngsdb', database='marea01', user='marea', password='marea')
 cur = dbh.cursor()
+
+stat_cv = dict()
+effect_cv = dict()
+filter_cv = dict()
+
+cur.execute('SELECT cvterm, stats_cvterm_id FROM "ngsdbview_statistics_cv"')
+stats = cur.fetchall()
+for each in stats:
+    stat_cv[each[0]] = each[1]
+
+
+cur.execute('SELECT effect_name, effect_id FROM "ngsdbview_effect_cv"')
+eff = cur.fetchall()
+for each in eff:
+    effect_cv[each[0]] = each[1]
+
+
+cur.execute('SELECT filter_type, filter_cv_id FROM "ngsdbview_filter_cv"')
+filt = cur.fetchall()
+for each in filt:
+    filter_cv[each[0]] = each[1]
 
 
 # Connects to the database and finds author_id from the Library table.
@@ -33,11 +53,8 @@ def insert_statistics_cv(infos, formats):
         cv_definition = value[3]
         if cv_name != "EFF":
             try:
-                cur.execute('SELECT stats_cvterm_id FROM "ngsdbview_statistics_cv" WHERE cvterm = %s', (cv_name,))
-                cv_id = cur.fetchone()
-                if cv_id is not None:
-                    dbh.commit()
-                #Inserts data into the database through 'execute'.
+                if cv_name in stat_cv:
+                    pass
                 else:
                     cur.execute('INSERT INTO "ngsdbview_statistics_cv" (cvterm, cv_notes) VALUES (%s, %s)',
                                 (cv_name, cv_definition))
@@ -49,11 +66,8 @@ def insert_statistics_cv(infos, formats):
         cv_definition = values[3]
         if cv_name != "EFF":
             try:
-                cur.execute('SELECT stats_cvterm_id FROM "ngsdbview_statistics_cv" WHERE cvterm = %s', (cv_name,))
-                cv_id = cur.fetchone()
-                if cv_id is not None:
-                    dbh.commit()
-                #Inserts data into the database through 'execute'.
+                if cv_name in stat_cv:
+                    pass
                 else:
                     cur.execute('INSERT INTO "ngsdbview_statistics_cv" (cvterm, cv_notes) VALUES (%s, %s)',
                                 (cv_name, cv_definition))
@@ -82,7 +96,8 @@ def insert_snp_results(snp_position, result_id, ref_base, alt_base, heterozygosi
     alt_bases = str(alt_base).strip('[]')
     try:
         cur.execute(
-            'INSERT INTO "ngsdbview_snp" (snp_position, result_id, ref_base, alt_base, heterozygosity, quality, library_id, chromosome_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING snp_id', (snp_position, result_id, ref_base, alt_bases, heterozygosity, quality, library_id, chromosome_id))
+            'INSERT INTO "ngsdbview_snp" (snp_position, result_id, ref_base, alt_base, heterozygosity, quality, library_id, chromosome_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING snp_id',
+            (snp_position, result_id, ref_base, alt_bases, heterozygosity, quality, library_id, chromosome_id))
         snp_id = cur.fetchone()[0]
         dbh.commit()
         return snp_id
@@ -95,15 +110,13 @@ def insert_snp_results(snp_position, result_id, ref_base, alt_base, heterozygosi
 # Effects are collected from the INFO metadata where id=EFF.
 # Effect id will be pulled to fill in the effect table.
 def insert_effect_cv(effect_list):
-    effect_cv = re.findall('[\||\(][\s+](\w*)', effect_list)
-    for each in effect_cv:
+    eff_cv = re.findall('[\||\(][\s+](\w*)', effect_list)
+    for all_effect in eff_cv:
         try:
-            cur.execute('SELECT * FROM "ngsdbview_effect_cv" WHERE effect_name = %s', (each,))
-            effect_id = cur.fetchone()
-            if effect_id is not None:
+            if all_effect in effect_cv:
                 pass
             else:
-                cur.execute('INSERT INTO "ngsdbview_effect_cv" (effect_name) VALUES (%s)', (each,))
+                cur.execute('INSERT INTO "ngsdbview_effect_cv" (effect_name) VALUES (%s)', (all_effect,))
                 dbh.commit()
         except psycopg2.IntegrityError:
             print "Effect cv rollback error"
@@ -113,12 +126,12 @@ def insert_effect_cv(effect_list):
 # Inserts the snp_effects for each snp. Each effect type is grouped using the group_id. Effect_id is specific to one vcf file.
 # May need to be adjusted in the future.
 def insert_effect(snp_id, effect_class, effect_strings, effect_group, effect_list):
-    effect_cv = re.findall('[\||\(][\s+](\w*)', effect_list)
+    effect = re.findall('[\||\(][\s+](\w*)', effect_list)
     effect_position = 0
     for effect_string in effect_strings:
         if effect_string:
             try:
-                cur.execute('SELECT effect_id FROM "ngsdbview_effect_cv" WHERE effect_name = %s', (effect_cv[effect_position],))
+                cur.execute('SELECT effect_id FROM "ngsdbview_effect_cv" WHERE effect_name = %s', (effect[effect_position],))
                 effect_id = cur.fetchone()[0]
                 cur.execute('INSERT INTO "ngsdbview_effect" (snp_id, effect_id, effect_class, effect_string, effect_group) VALUES (%s, %s, %s, %s, %s)',
                             (snp_id, effect_id, effect_class, effect_string, effect_group,))
@@ -134,9 +147,9 @@ def insert_effect(snp_id, effect_class, effect_strings, effect_group, effect_lis
 # Checks to see if the database contains the chromosome. If it does, the database connection is closed.
 # If the chromosome is not present, it is added into the database. This is done before adding any of the snp_results.
 def insert_chromosome(chromosome_name, organismcode, genome_version):
-    for each in chromosome_name:
-        chromosome_fullname = each[0]
-        size = each[1]
+    for chrom in chromosome_name:
+        chromosome_fullname = chrom[0]
+        size = chrom[1]
         chromosome = chromosome_fullname.split('_')[0]
         try:
             cur.execute('SELECT chromosome_id FROM "ngsdbview_chromosome" WHERE chromosome_name = %s AND genome_version = %s',
@@ -190,27 +203,30 @@ def get_organism_id(librarycode):
 def insert_result_option2(result_ids, library_id, genome_id, author_id, analysis_path):
     notes = ''
     try:
-        for each in result_ids:
-            result_to_delete = each[0]
+        for result in result_ids:
+            result_to_delete = result[0]
             cur.execute('SELECT snp_id FROM "ngsdbview_snp" WHERE result_id =%s', (result_to_delete,))
             snps = cur.fetchall()
             for ids in snps:
-                id = ids[0]
-                cur.execute('DELETE FROM "ngsdbview_statistics" WHERE snp_id=%s', (id,))
-                cur.execute('DELETE FROM "ngsdbview_filter" WHERE snp_id=%s', (id,))
-                cur.execute('DELETE FROM "ngsdbview_effect" WHERE snp_id=%s', (id,))
+                identifiers = ids[0]
+                cur.execute('DELETE FROM "ngsdbview_statistics" WHERE snp_id=%s', (identifiers,))
+                cur.execute('DELETE FROM "ngsdbview_filter" WHERE snp_id=%s', (identifiers,))
+                cur.execute('DELETE FROM "ngsdbview_effect" WHERE snp_id=%s', (identifiers,))
+                cur.execute('DELETE FROM "ngsdbview_snp_type" WHERE snp_id=%s', (identifiers,))
             cur.execute('DELETE FROM "ngsdbview_snp" WHERE result_id = %s', (result_to_delete,))
             cur.execute('DELETE FROM "ngsdbview_result_libraries" WHERE result_id = %s AND library_id = %s', (result_to_delete, library_id,))
+            dbh.commit()
         cur.execute('INSERT INTO "ngsdbview_result" (genome_id, author_id, analysisPath, notes, is_current, is_obsolete) VALUES (%s, %s, %s, %s, %s, %s) RETURNING result_id',
                     (genome_id, author_id, analysis_path, notes, True, False))
         new_result_id = cur.fetchone()[0]
-        cur.execute('INSERT INTO "ngsdbview_result_libraries" (result_id, library_id) VALUES (%s, %s) RETURNING result_id', (new_result_id, library_id))
+        cur.execute('INSERT INTO "ngsdbview_result_libraries" (result_id, library_id) VALUES (%s, %s) RETURNING result_id',
+                    (new_result_id, library_id))
         second_result_id = cur.fetchone()[0]
-    except psycopg2.IntegrityError:
+        return second_result_id
+    except psycopg2.IntegrityError as err:
+        print err
         print "Insert Result 2 rollback error"
         dbh.rollback()
-    dbh.commit()
-    return second_result_id
 
 
 # Collects the result_id. User is presented with three options if a result and library are already present in database.
@@ -233,8 +249,8 @@ def get_result(library_id, genome_id, author_id, analysis_path):
                 return result_id
             elif user_opt == 3:
                 notes = ''
-                for each in result_ids:
-                    result = each[0]
+                for results in result_ids:
+                    result = results[0]
                     cur.execute('UPDATE "ngsdbview_result" SET is_current = %s, is_obsolete = %s WHERE result_id = %s', (False, True, result,))
                     dbh.commit()
                 cur.execute('INSERT INTO "ngsdbview_result" (genome_id, author_id, analysisPath, notes, is_current, is_obsolete) VALUES (%s, %s, %s, %s, %s, %s) RETURNING result_id',
@@ -252,7 +268,7 @@ def get_result(library_id, genome_id, author_id, analysis_path):
             dbh.commit()
             return result_id
     except psycopg2.IntegrityError:
-        print "Getting library id rollback error"
+        print "Getting result id rollback error"
         dbh.rollback()
 
 
@@ -278,11 +294,12 @@ def get_library_id(librarycode):
 
 def insert_snp_statistics(snp_id, cv_name, cv_value):
     try:
-        cur.execute('SELECT cvterm FROM "ngsdbview_statistics_cv" WHERE cvterm = %s', (cv_name,))
-        cvterm_id = cur.fetchone()
+        cvterm_id = stat_cv.get(cv_name)
         if cvterm_id is not None:
             cur.execute('INSERT INTO "ngsdbview_statistics" (snp_id, stats_cvterm_id, cv_value) VALUES (%s, %s, %s)',
-                        (snp_id, cvterm_id, cv_value))
+                        (snp_id, cv_name, cv_value))
+        else:
+            pass
     except psycopg2.IntegrityError:
         print "Inserting snp rollback error"
         dbh.rollback()
@@ -309,8 +326,7 @@ def insert_filter_cv(filter_type):
     try:
         if filter_type:
             filter_string = filter_type[0]
-            cur.execute('SELECT "filter_cv_id" FROM "ngsdbview_filter_cv" WHERE filter_type = %s', (filter_string,))
-            filter_cv_id = cur.fetchone()
+            filter_cv_id = filter_cv[filter_string]
             if filter_cv_id is None:
                 cur.execute('INSERT INTO "ngsdbview_filter_cv" (filter_type) VALUES (%s) RETURNING "filter_cv_id"', (filter_string,))
                 filter_cv_id = cur.fetchone()
@@ -325,7 +341,8 @@ def insert_filter_cv(filter_type):
 def insert_filter(snp_id, filter_cv_id):
     filter_result = False
     try:
-        cur.execute('INSERT INTO "ngsdbview_filter" (snp_id, filter_result, filter_cv_id) VALUES (%s, %s, %s)', (snp_id, filter_result, filter_cv_id[0],))
+        cur.execute('INSERT INTO "ngsdbview_filter" (snp_id, filter_result, filter_cv_id) VALUES (%s, %s, %s)',
+                    (snp_id, filter_result, filter_cv_id,))
         dbh.commit()
     except psycopg2.IntegrityError:
         print "inserting filter rollback error"
@@ -356,11 +373,11 @@ def main():
             cur.execute('SELECT genome_id, organism_id, version FROM "ngsdbview_genome"s',
                         (librarycode,))
             genome = cur.fetchall()
-            for each in genome:
+            for genomes in genome:
                 try:
-                    cur.execute('SELECT organismcode FROM "ngsdbview_organism" WHERE organism_id=%s', (each[1],))
+                    cur.execute('SELECT organismcode FROM "ngsdbview_organism" WHERE organism_id=%s', (genomes[1],))
                     organismcode = cur.fetchone()
-                    print "{0}\t{1}\t{2}".format(each[0], organismcode[0], each[2])
+                    print "{0}\t{1}\t{2}".format(genomes[0], organismcode[0], genomes[2])
                 except psycopg2.IntegrityError:
                     print "Getting organismcode rollback error"
                     dbh.rollback()
@@ -404,27 +421,27 @@ def main():
         effect_list = vcf_reader.infos['EFF'].desc
         insert_effect_cv(effect_list)
 
-        # Attributes that are unique for each SNP.
-        for each in vcf_reader:
+        #Attributes that are unique for each SNP.
+        for snps in vcf_reader:
             snp_iterator += 1
             print snp_iterator
-            ref_base = each.REF
-            alt_base = each.ALT
-            quality = each.QUAL
-            filter_type = each.FILTER
-            position = each.POS
-            is_snp = each.is_snp
-            indel = each.is_indel
-            deletion = each.is_deletion
-            monomorphic = each.is_monomorphic
-            sv = each.is_sv       # structural variant
-            transition = each.is_transition
-            statistics = each.INFO
-            chromosome = each.CHROM
-            effects = each.INFO['EFF']
+            ref_base = snps.REF
+            alt_base = snps.ALT
+            quality = snps.QUAL
+            filter_type = snps.FILTER
+            position = snps.POS
+            is_snp = snps.is_snp
+            indel = snps.is_indel
+            deletion = snps.is_deletion
+            monomorphic = snps.is_monomorphic
+            sv = snps.is_sv       # structural variant
+            transition = snps.is_transition
+            statistics = snps.INFO
+            chromosome = snps.CHROM
+            effects = snps.INFO['EFF']
 
             # Returns the heterozygosity of each snp.
-            samples = each.samples
+            samples = snps.samples
             heterozygosity = get_heterozygosity(samples)
 
             # Returns the chromosome_id for each snp result.
@@ -438,10 +455,10 @@ def main():
 
             # Inserts effects on each SNP into Effect.
             group_id = 0
-            for each in effects:
+            for effs in effects:
                 group_id += 1
-                effect_class = each.split('(')[0]
-                effect_string = re.split('\((\S*\|\S*)\)', each)[1]
+                effect_class = effs.split('(')[0]
+                effect_string = re.split('\((\S*\|\S*)\)', effs)[1]
                 effects_string = effect_string.split('|')
                 insert_effect(snp_id, effect_class, effects_string, group_id, effect_list)
 
@@ -449,8 +466,8 @@ def main():
             for cv_name in statistics:
                 cv_value = statistics[cv_name]
                 if isinstance(cv_value, list):
-                    for each in cv_value:
-                        insert_snp_statistics(snp_id, cv_name, each)
+                    for values in cv_value:
+                        insert_snp_statistics(snp_id, cv_name, values)
                 else:
                     insert_snp_statistics(snp_id, cv_name, cv_value)
 
